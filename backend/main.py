@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from objects import ImageUpload
 from supabase import create_client, Client
@@ -38,37 +37,40 @@ async def root():
 @app.post("/upload_image")
 async def upload_image(image_upload: ImageUpload):
     # Example test object to upload
-    data = {
-        "created_at": image_upload.created_at,
-        "image_url": image_upload.image_url,
-        "location": image_upload.location,
-        "status": image_upload.status
-    }
     ext = os.path.splitext(image_upload.file_path)[1].lower()
     content_type = CONTENT_TYPE_MAP.get(ext, "application/octet-stream")
     file_name = Path(image_upload.file_path).name
-    try :
+    bucket_folder = "19veqq_0"
+    storage_path = f"{bucket_folder}/{file_name}"
+    try:
         with open(image_upload.file_path, "rb") as f:
             res = supabase.storage.from_("pothole_images").upload(
-            path=f"19veqq_0/{file_name}",
-            file=f, 
-            file_options={
-             "cache-control": "3600",
-             "content-type": content_type,
-             "upsert": "true"
-
-            }
-        
-    )   
-
+                path=storage_path,
+                file=f,
+                file_options={
+                    "cache-control": "3600",
+                    "content-type": content_type,
+                    "upsert": "true"
+                }
+            )
+        # Construct the public URL for the uploaded image
+        public_url = supabase.storage.from_("pothole_images").get_public_url(storage_path)
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Storage upload failed: {str(e)}"}
+
+    # Prepare data for DB insert
+    data = {
+        "created_at": image_upload.created_at or datetime.utcnow().isoformat(),
+        "image_url": public_url,
+        "location": image_upload.location,
+        "status": image_upload.status
+    }
     try:
         response = supabase.table("potholes").insert(data).execute()
-        return {"message": "Image uploaded to Supabase", "data": response.data}
+        return {"message": "Image uploaded to Supabase", "data": response.data, "image_url": public_url}
     except Exception as e:
-        return {"error": str(e)}
-    
+        return {"error": f"DB insert failed: {str(e)}"}
 
-   
-    
+
+
+
