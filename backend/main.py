@@ -48,14 +48,14 @@ async def upload_image(image_upload: ImageUpload):
     try :
         with open(image_upload.file_path, "rb") as f:
             res = supabase.storage.from_("pothole_images").upload(
-            path="pothole.jpg",
+            path="19veqq_0/pothole.jpg",
             file=f, 
             file_options={
-             "content-type": content_type
+             "content-type": "image/jpg"
             }
         
     )   
-        return {"message": "Image uploaded to Supabase Storage", "response": res}
+
     except Exception as e:
         return {"error": str(e)}
     try:
