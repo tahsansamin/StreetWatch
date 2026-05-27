@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv, find_dotenv
 import mimetypes
+from pathlib import Path
 load_dotenv()
 dotenvpath = find_dotenv()
 
@@ -45,13 +46,17 @@ async def upload_image(image_upload: ImageUpload):
     }
     ext = os.path.splitext(image_upload.file_path)[1].lower()
     content_type = CONTENT_TYPE_MAP.get(ext, "application/octet-stream")
+    file_name = Path(image_upload.file_path).name
     try :
         with open(image_upload.file_path, "rb") as f:
             res = supabase.storage.from_("pothole_images").upload(
-            path="19veqq_0/pothole.jpg",
+            path=f"19veqq_0/{file_name}",
             file=f, 
             file_options={
-             "content-type": "image/jpg"
+             "cache-control": "3600",
+             "content-type": content_type,
+             "upsert": "true"
+
             }
         
     )   
