@@ -7,9 +7,22 @@ import re
 
 
 
-def is_pothole(image_path):
-    load_dotenv()
-    image = Image.open(image_path)
+from google import genai
+from PIL import Image
+from dotenv import load_dotenv
+import os
+import json
+import re
+import io
+
+load_dotenv()
+
+def is_pothole(image_source: bytes | str) -> bool:
+    # Accept either bytes or a file path string
+    if isinstance(image_source, bytes):
+        image = Image.open(io.BytesIO(image_source))
+    else:
+        image = Image.open(image_source)
 
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -25,15 +38,7 @@ def is_pothole(image_path):
         ]
     )
 
-    # Strip markdown code fences if present
     clean = re.sub(r"```(?:json)?\s*|\s*```", "", response.text).strip()
-
     result = json.loads(clean)
     return result["is_pothole"]
 
-if __name__ == "__main__":
-    
-    if is_pothole("MicrosoftTeams-image_32.jpg"):
-        print("The image contains a pothole.")
-    else:
-        print("The image does not contain a pothole.")
