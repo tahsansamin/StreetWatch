@@ -6,6 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv, find_dotenv
 import mimetypes
 from pathlib import Path
+from detecting_pothole import is_pothole
 load_dotenv()
 dotenvpath = find_dotenv()
 
@@ -34,7 +35,14 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/upload_image")
+# verifies that what is being uploaded is a pothole, returns true if it is, false otherwise
+@app.get("/verify_pothole")
+async def get_potholes(image_upload: ImageUpload):
+    return is_pothole(image_upload.file_path)
+
+
+# uploads the image to supabase storage and then inserts a record into the potholes table with the image URL and other metadata
+@app.post("/upload_image_to_supabase")
 async def upload_image(image_upload: ImageUpload):
     # Example test object to upload
     ext = os.path.splitext(image_upload.file_path)[1].lower()
@@ -70,6 +78,14 @@ async def upload_image(image_upload: ImageUpload):
         return {"message": "Image uploaded to Supabase", "data": response.data, "image_url": public_url}
     except Exception as e:
         return {"error": f"DB insert failed: {str(e)}"}
+    
+@app.post("/master_upload")
+async def master_upload(image_upload: ImageUpload):
+    if not is_pothole(image_upload.file_path):
+        return {"message": "The image does not contain a pothole."}
+    
+    # If it is a pothole, proceed to upload
+    return await upload_image(image_upload)
 
 
 
