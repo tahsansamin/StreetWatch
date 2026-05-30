@@ -16,31 +16,39 @@ function App() {
   const [status, setStatus] = useState('active'); // default to active status
   const fileInputRef = useRef();
 
-  // // Get device location on mount
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const { latitude, longitude } = position.coords;
-  //         setLocation(`POINT(${longitude} ${latitude})`);
-  //       },
-  //       (error) => {
-  //         setLocation('');
-  //       }
-  //     );
-  //   }
-  // }, []);
+  const compressImage = (file) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = h * MAX / w; w = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob((blob) => {
+        // Convert blob back to a File so FormData works correctly
+        const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
+        resolve(compressedFile);
+      }, 'image/jpeg', 0.7);
+    };
+  });
+  };
 
  
 
 
 
   // Handle file selection
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]; 
+    console.log("Original size:", (file.size / 1024).toFixed(2), "KB");
     if (file) {
-      setSelectedImage(file);
-      setPreview(URL.createObjectURL(file));
+      const compressed = await compressImage(file);
+      console.log("Compressed size:", (compressed.size / 1024).toFixed(2), "KB");
+      setSelectedImage(compressed);
+      setPreview(URL.createObjectURL(compressed));
       setResult('');
     }
   };
