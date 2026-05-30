@@ -166,18 +166,8 @@ function App() {
                 {locationStatus && <p className="location-status-text">{locationStatus}</p>}
               </div>
 
-              <div className="input-group">
-                <label>Report Status</label>
-                <select 
-                  value={status} 
-                  onChange={e => setStatus(e.target.value)}
-                  className="status-select"
-                  required
-                >
-                  <option value="active">Active / Unresolved</option>
-                  <option value="resolved">Resolved</option>
-                </select>
-              </div>
+                {/* Report Status is fixed to Active/Unresolved */}
+                <input type="hidden" name="status" value="active" />
 
               <button 
                 type="submit" 

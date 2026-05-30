@@ -131,6 +131,7 @@ export default function MapView() {
                     <span className={`status-badge ${pothole.status || 'active'}`}>
                       {pothole.status || 'Active'}
                     </span>
+                    <p className="popup-id">ID: {pothole.id}</p>
                     <p className="popup-date">Reported: {formatDate(pothole.created_at)}</p>
                     <p className="popup-coords">
                       Coords: {coords[0].toFixed(5)}, {coords[1].toFixed(5)}
