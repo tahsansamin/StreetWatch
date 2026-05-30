@@ -27,7 +27,7 @@ def is_pothole(image_source: bytes | str) -> bool:
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-1.5-flash",
         contents=[
             image,
             (
