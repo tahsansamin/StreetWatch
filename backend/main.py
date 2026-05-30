@@ -11,7 +11,7 @@ from datetime import datetime
 from dotenv import load_dotenv, find_dotenv
 import mimetypes
 from pathlib import Path
-from detecting_pothole import is_pothole
+from test import is_pothole
 load_dotenv()
 dotenvpath = find_dotenv()
 
