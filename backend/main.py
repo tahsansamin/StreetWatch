@@ -64,8 +64,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or specify your frontend's URL
-    allow_credentials=False,
+    allow_origins=["https://street-watch-six.vercel.app"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
