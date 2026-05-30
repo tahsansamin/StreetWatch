@@ -152,7 +152,7 @@ async def get_potholes():
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Or specify your frontend's URL
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
