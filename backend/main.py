@@ -121,6 +121,7 @@ async def upload_to_supabase(image_bytes: bytes, filename: str, image_upload: Im
 @app.post("/master_upload")
 @rate_limited(max_calls=10, time_frame=60)
 async def master_upload(
+    request: Request,  # 👈 add this
     file: UploadFile = File(None),
     location: str = Form(None),
     status: str = Form(None),
