@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import apiClient from './api';
 
 // Fix the default Leaflet marker icon broken image bug
 delete L.Icon.Default.prototype._getIconUrl;
@@ -23,7 +24,7 @@ export default function MapView() {
     const fetchPotholes = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8000/potholes');
+        const response = await fetch(`${apiClient}/potholes`);
         if (!response.ok) {
           throw new Error(`Failed to fetch potholes: ${response.statusText}`);
         }
