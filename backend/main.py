@@ -1,6 +1,9 @@
 import uuid
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile, Request, status, HTTPException
+from functools import wraps
+import time
+from datetime import datetime
 from objects import ImageUpload
 from supabase import create_client, Client
 import os
@@ -28,6 +31,34 @@ SUPABASE_KEY = os.getenv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Supabase URL and Key must be set in environment variables.")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+def rate_limited(max_calls: int, time_frame: int):
+    """
+    :param max_calls: Maximum number of calls allowed in the specified time frame.
+    :param time_frame: The time frame (in seconds) for which the limit applies.
+    :return: Decorator function.
+    """
+    def decorator(func):
+        calls = []
+
+        @wraps(func)
+        async def wrapper(request: Request, *args, **kwargs):
+            now = time.time()
+            calls_in_time_frame = [call for call in calls if call > now - time_frame]
+            
+            if len(calls_in_time_frame) >= max_calls:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS, 
+                    detail="Rate limit exceeded."
+                )
+                
+            calls.append(now)
+            return await func(request, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 app = FastAPI()
 
@@ -81,6 +112,7 @@ async def upload_to_supabase(image_bytes: bytes, filename: str, image_upload: Im
 
 
 @app.post("/master_upload")
+@rate_limited(max_calls=10, time_frame=60)
 async def master_upload(
     file: UploadFile = File(None),
     location: str = Form(None),

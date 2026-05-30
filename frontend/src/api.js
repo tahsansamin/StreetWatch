@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: "https://scoff-rants-hazelnut.ngrok-free.dev",
+    baseURL: import.meta.env.VITE_BACKEND_URL,
     headers: {
         "ngrok-skip-browser-warning": "true"
     }
