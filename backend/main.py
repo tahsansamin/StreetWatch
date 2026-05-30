@@ -126,7 +126,7 @@ async def master_upload(
     location: str = Form(None),
     status: str = Form(None),
     file_path: str = Form(None),
-):
+): 
     image_upload = ImageUpload(
         created_at=datetime.utcnow().isoformat(),
         image_url="",
