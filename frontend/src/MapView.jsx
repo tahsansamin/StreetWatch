@@ -24,11 +24,7 @@ export default function MapView() {
     const fetchPotholes = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${apiClient}/potholes`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch potholes: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const { data } = await apiClient.get('/potholes');
         setPotholes(data || []);
       } catch (err) {
         setError(err.message || 'An error occurred while fetching potholes.');

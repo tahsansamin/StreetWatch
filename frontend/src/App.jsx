@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import MapView from './MapView';
 import apiClient from './api';
-
 function App() {
   const [currentView, setCurrentView] = useState('report'); // 'report' or 'map'
   const [selectedImage, setSelectedImage] = useState(null);
@@ -76,11 +75,8 @@ function App() {
     formData.append('status', status);
     formData.append('file_path', ''); // Not used when uploading file directly
     try {
-      const response = await fetch(`${apiClient}/master_upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
+      const response = await apiClient.post('/master_upload', formData);
+      const data = response.data;
       setResult(data.message || 'No result');
     } catch (err) {
       setResult(err.message || 'Error occurred');
