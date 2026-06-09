@@ -24,6 +24,12 @@ CONTENT_TYPE_MAP = {
     ".webp": "image/webp",
     ".gif": "image/gif",
 }
+UGANDA_BOUNDS = {
+    "lat_min": -1.4919,
+    "lat_max": 4.2340,
+    "lng_min": 29.5731,
+    "lng_max": 35.0000,
+}
 
 # Set your Supabase URL and Key here (replace with your actual credentials)
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
@@ -86,6 +92,21 @@ def is_duplicate_location(location: str, radius_metres: int = 10) -> bool:
     except Exception as e:
         print(f"Duplicate check failed: {e}")
         return False  # Fail open — don't block upload if check errors
+    
+def is_within_uganda(location: str) -> bool:
+    """Returns True if the location falls within Uganda's bounding box."""
+    if not location:
+        return False
+    try:
+        coords = location.replace("POINT(", "").replace(")", "").split()
+        lng, lat = float(coords[0]), float(coords[1])
+        return (
+            UGANDA_BOUNDS["lat_min"] <= lat <= UGANDA_BOUNDS["lat_max"]
+            and UGANDA_BOUNDS["lng_min"] <= lng <= UGANDA_BOUNDS["lng_max"]
+        )
+    except Exception as e:
+        print(f"Uganda bounds check failed: {e}")
+        return False  # Fail closed — reject if location is unparseable
 
 
 
@@ -141,6 +162,9 @@ async def master_upload(
     else:
         image_bytes = image_upload.get_image_bytes()
         filename = image_upload.get_filename()
+
+    if not is_within_uganda(location):
+        return {"message": "The location is outside of Uganda."}
 
     if not is_pothole(image_bytes):
         return {"message": "The image does not contain a pothole."}
