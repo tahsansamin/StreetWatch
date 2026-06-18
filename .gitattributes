@@ -1,0 +1,3 @@
+# .gitattributes
+*.ipynb linguist-detectable=false
+*.css linguist-vendored=true
