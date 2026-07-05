@@ -34,3 +34,4 @@ if __name__ == "__main__":
         img_bytes = f.read()
     result = is_pothole(img_bytes)
     print(f"Pothole detection result for {test_image_path.name}: {result}")
+    
